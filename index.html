@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استخدام البرامج الجاهزة في التعليم</title>
+
+<style>
+:root{
+  --bg-body:#f1f5f9;
+  --bg-box:#ffffff;
+  --text:#111827;
+  --correct:#16a34a;
+  --wrong:#dc2626;
+  --timer-bg:#e5e7eb;
+}
+
+body.dark{
+  --bg-body:#0f172a;
+  --bg-box:#1e293b;
+  --text:#e5e7eb;
+  --timer-bg:#020617;
+}
+
+body{
+  background:var(--bg-body);
+  color:var(--text);
+  direction:rtl;
+  font-family:Cairo, Tahoma, Arial;
+  padding:20px;
+}
+
+.container{
+  background:var(--bg-box);
+  max-width:950px;
+  margin:auto;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+  position:relative;
+}
+
+/* زر المظهر */
+.theme-switch{
+  position:absolute;
+  top:20px;
+  left:20px;
+  text-align:center;
+}
+.theme-switch span{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:4px;
+}
+#themeBtn{
+  background:#111827;
+  color:#fff;
+  border:none;
+  padding:7px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+body.dark #themeBtn{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+/* التوقيت */
+.timer{
+  position:absolute;
+  top:20px;
+  right:20px;
+  background:var(--timer-bg);
+  padding:8px 16px;
+  border-radius:8px;
+  border:1px solid #94a3b8;
+  text-align:center;
+  font-weight:bold;
+}
+.timer span{
+  display:block;
+  font-size:13px;
+  margin-bottom:3px;
+}
+
+/* رأس الامتحان */
+.exam-header{
+  margin:80px 0 30px;
+  padding:25px 20px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#334155,#020617);
+  color:#fff;
+  text-align:center;
+}
+.exam-title{
+  font-size:26px;
+  font-weight:900;
+}
+.divider{
+  width:60%;
+  height:1px;
+  margin:16px auto;
+  background:rgba(255,255,255,.35);
+}
+.designer{
+  font-size:15px;
+  opacity:.95;
+}
+
+.section-title{
+  margin:25px 0 10px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.question{
+  margin:15px 0;
+  padding:10px;
+}
+
+label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:6px 0;
+  cursor:pointer;
+}
+
+input[type="radio"]{
+  accent-color:#2563eb;
+  transform:scale(1.2);
+}
+
+/* قفل بعد التسليم */
+.finished input[type="radio"],
+.finished label{
+  pointer-events:none;
+}
+
+.correct{color:var(--correct);font-weight:bold;}
+.wrong{color:var(--wrong);font-weight:bold;}
+
+button.submit{
+  width:100%;
+  margin-top:25px;
+  padding:14px;
+  background:#334155;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-size:18px;
+  cursor:pointer;
+}
+button.submit:disabled{
+  background:#94a3b8;
+  color:#020617;
+}
+
+.result{
+  margin-top:20px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="theme-switch">
+    <span>المظهر العام</span>
+    <button id="themeBtn" onclick="toggleMode()">الوضع الداكن</button>
+  </div>
+
+  <div class="timer" id="timer">
+    <span>التوقيت</span>
+    10:00
+  </div>
+
+  <div class="exam-header">
+    <div class="exam-title">استخدام البرامج الجاهزة في التعليم</div>
+    <div class="divider"></div>
+    <div class="designer">
+      مصمم الامتحان: الطالب / أحمد محمد أحمد إسماعيل
+    </div>
+  </div>
+
+  <form id="quiz"></form>
+
+  <button class="submit" id="submitBtn" onclick="check()">إنهاء الامتحان</button>
+  <div class="result" id="result"></div>
+
+</div>
+
+<script>
+/* ===== الوضع ===== */
+function toggleMode(){
+  document.body.classList.toggle("dark");
+  document.getElementById("themeBtn").innerText =
+    document.body.classList.contains("dark") ? "الوضع الفاتح" : "الوضع الداكن";
+}
+
+/* ===== التوقيت ===== */
+let time=10*60, finished=false;
+const timerEl=document.getElementById("timer");
+
+const t=setInterval(()=>{
+  let m=Math.floor(time/60);
+  let s=time%60;
+  timerEl.innerHTML=`<span>التوقيت</span>${m}:${s<10?'0'+s:s}`;
+  if(time<=0 && !finished){
+    clearInterval(t);
+    check();
+    alert("انتهى الوقت");
+  }
+  time--;
+},1000);
+
+/* ===== الأسئلة ===== */
+const mcq = [
+["عند استخدام برنامج تعليمي يتيح للمتعلم التحكم في مسار التعلم، يُصنّف البرنامج على أنه:",["خطي","متفرع","تدريبي","ألعاب"],1],
+["الهدف الأساسي من استخدام البرامج الجاهزة في التعليم هو:",["تقليل دور المعلم","زيادة العبء المعرفي","تحسين عملية التعلم","استبدال المناهج"],2],
+["البرنامج الذي يقدم المحتوى بنفس الترتيب لجميع المتعلمين يُعد:",["تفاعلي","متكيف","خطي","تشاركي"],2],
+["البرنامج الذي يركز على تكرار المهارة مع تعزيز فوري هو:",["محاكاة","ألعاب","تدريب وممارسة","خصوصي"],2],
+["تحويل المفاهيم المجردة إلى صور تظهر في البيئة الحقيقية يُسمى:",["واقع افتراضي","وسائط متعددة","واقع معزز","تعليم إلكتروني"],2],
+["الفرق الجوهري بين الواقع الافتراضي والمعزز أن الواقع الافتراضي:",["يعتمد على البيئة الحقيقية","يدمج الحقيقي بالافتراضي","يستبدل الواقع ببيئة رقمية","لا يستخدم الحاسوب"],2],
+["من مبررات استخدام البرامج الجاهزة:",["صعوبة استخدامها","تقليل التفاعل","توفير الوقت والجهد","زيادة الحفظ"],2],
+["السماح للطالب بالانتقال بين أجزاء المحتوى بحرية يعكس:",["العشوائية","الخطية","التفرع","الثبات"],2],
+["من أسس تصميم شاشة البرنامج التعليمي:",["كثرة الألوان","البساطة والوضوح","كثرة النصوص","الزخرفة"],1],
+["البرنامج الذي يحاكي موقفًا حقيقيًا دون مخاطرة يُسمى:",["خطي","محاكاة","ألعاب","تدريبي"],1],
+["مراعاة الفروق الفردية تتحقق أكثر في:",["البرامج الخطية","البرامج المتفرعة","النصية","الثابتة"],1],
+["من المعايير التربوية للبرمجيات التعليمية:",["جودة الصوت","وضوح الشاشة","التغذية الراجعة","سرعة التحميل"],2],
+["التغذية الراجعة تعني:",["إنهاء البرنامج","تصحيح فقط","إعلام المتعلم بنتيجته مع توجيه","إعادة المحتوى"],2],
+["دور المعلم عند استخدام البرامج الجاهزة هو:",["ناقل للمعلومة","مبرمج","موجه ومرشد","متلقٍ سلبي"],2],
+["البرمجية التعليمية الجيدة تتميز بـ:",["التعقيد","عدم المرونة","وضوح الأهداف","الاعتماد على النص"],2],
+["توزيع عناصر الشاشة بشكل متوازن يشير إلى:",["التباين","التأكيد","الاتزان","الوحدة"],2],
+["من خصائص البرمجيات الجيدة:",["تجاهل الأخطاء","التشخيص والعلاج","غياب التعزيز","الجمود"],1],
+["البرنامج الذي يعتمد على المنافسة والتحفيز هو:",["تدريب","محاكاة","ألعاب تعليمية","خطي"],2],
+["استخدام الصوت والصورة والنص معًا يُسمى:",["تفاعل","وسائط متعددة","برمجة","محاكاة"],1],
+["البرنامج الذي لا يحدد مسارًا مسبقًا يُعد:",["موجه","خطي","غير موجه","تدريبي"],2],
+["سهولة الاستخدام تُعد:",["معيارًا تربويًا","معيارًا فنيًا","إداريًا","عامًا"],1],
+["الهدف من تصميم الشاشة التعليمية هو:",["الإبهار","جذب الانتباه فقط","دعم التعلم","كثرة المؤثرات"],2],
+["الاستخدام الخاطئ للبرامج الجاهزة هو:",["دعم التعلم الذاتي","تنويع التدريس","إلغاء دور المعلم","مراعاة الفروق"],2],
+["إظهار نتيجة صحيحة أو خاطئة فورًا يُعد:",["تعزيزًا","تفاعلًا","تغذية راجعة فورية","محاكاة"],2],
+["البرمجيات الجاهزة هي:",["أقل جودة","غير تعليمية","عامة ويمكن توظيفها تعليميًا","تحتاج برمجة"],2],
+["دور الطالب مع البرامج الجاهزة:",["سلبي","نشط ومشارك","مبرمج","مصمم"],1],
+["استخدام البرامج الجاهزة يسهم في:",["زيادة التلقين","تقليل الدافعية","تنمية التفكير الذاتي","إلغاء التقويم"],2],
+["مثال على برنامج جاهز يوظف تعليميًا:",["برنامج معالجة النصوص","لغة برمجة","نظام تشغيل","معالج إلكتروني"],0]
+];
+
+
+const tf = [
+["البرامج الجاهزة تُستخدم فقط في التعليم الإلكتروني",false],
+["الواقع المعزز يدمج بين الواقع الحقيقي والعناصر الافتراضية",true],
+["البرامج الخطية تراعي الفروق الفردية",false],
+["التغذية الراجعة عنصر أساسي في التعلم الفعال",true],
+["البرامج غير الموجهة تسمح بالاكتشاف الذاتي",true],
+["الهدف من تصميم الشاشة هو الإبهار فقط",false],
+["المحاكاة تُستخدم لتدريب المتعلم دون مخاطرة",true],
+["البرامج الجيدة تهمل أخطاء المتعلم",false],
+["المعايير التربوية تختلف عن المعايير الفنية",true],
+["الوسائط المتعددة قد تحسن الفهم إذا استُخدمت جيدًا",true],
+["الواقع الافتراضي يعتمد على البيئة الحقيقية",false],
+["البرامج الجاهزة تلغي دور المعلم تمامًا",false],
+["البساطة من مبادئ تصميم الشاشة التعليمية",true],
+["الألعاب التعليمية تعتمد على التحفيز",true],
+["وضوح الأهداف من خصائص البرمجية الجيدة",true],
+["التغذية الراجعة يجب أن تكون متأخرة دائمًا",false],
+["المتعلم يكون دائمًا سلبيًا مع البرامج الجاهزة",false],
+["سهولة الاستخدام معيار فني",true],
+["البرامج المتفرعة تسمح باختيار مسار التعلم",true],
+["البرامج الجاهزة تدعم التعلم الذاتي",true],
+["كثرة المؤثرات البصرية تحسن التعلم دائمًا",false],
+["البرامج الجاهزة يمكن توظيفها في التعليم التقليدي",true]
+];
+
+
+/* ===== إنشاء الامتحان ===== */
+const form=document.getElementById("quiz");
+let n=1;
+
+form.innerHTML+=`<div class="section-title">أولًا: اختر الإجابة الصحيحة</div>`;
+mcq.forEach((q,i)=>{
+  let d=document.createElement("div");
+  d.className="question";
+  d.innerHTML=`<b>${n++}. ${q[0]}</b>`;
+  q[1].forEach((a,j)=>{
+    d.innerHTML+=`<label><input type="radio" name="m${i}" value="${j}"> ${a}</label>`;
+  });
+  form.appendChild(d);
+});
+
+form.innerHTML+=`<div class="section-title">ثانيًا: صح أم خطأ</div>`;
+tf.forEach((q,i)=>{
+  let d=document.createElement("div");
+  d.className="question";
+  d.innerHTML=`<b>${n++}. ${q[0]}</b>
+  <label><input type="radio" name="t${i}" value="true"> صح</label>
+  <label><input type="radio" name="t${i}" value="false"> خطأ</label>`;
+  form.appendChild(d);
+});
+
+function check(){
+  if(finished) return;
+  finished=true;
+  clearInterval(t);
+
+  let score=0;
+  let total=mcq.length+tf.length;
+
+  mcq.forEach((q,i)=>{
+    let ans=document.querySelector(`input[name=m${i}]:checked`);
+    document.querySelectorAll(`input[name=m${i}]`).forEach((l,j)=>{
+      if(j===q[2]) l.parentElement.classList.add("correct");
+      if(ans && l===ans && j!==q[2]) l.parentElement.classList.add("wrong");
+    });
+    if(ans && Number(ans.value)===q[2]) score++;
+  });
+
+  tf.forEach((q,i)=>{
+    let ans=document.querySelector(`input[name=t${i}]:checked`);
+    document.querySelectorAll(`input[name=t${i}]`).forEach(l=>{
+      if(l.value===String(q[1])) l.parentElement.classList.add("correct");
+      if(ans && l===ans && l.value!==String(q[1])) l.parentElement.classList.add("wrong");
+    });
+    if(ans && (ans.value==="true")===q[1]) score++;
+  });
+
+  let percent=Math.round((score/total)*100);
+document.getElementById("result").innerHTML=`
+  <span style="color:var(--correct)">
+    درجتك: ${score}/${total}
+  </span><br>
+  <span style="color:var(--wrong)">
+    النسبة المئوية: ${percent}%
+  </span>
+`;
+
+
+  document.body.classList.add("finished");
+  document.getElementById("submitBtn").disabled=true;
+}
+</script>
+
+</body>
+</html>
